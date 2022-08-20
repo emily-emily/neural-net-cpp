@@ -5,7 +5,8 @@
 
 const Function NeuralNetwork::activationFunctions[ActivationFunction::NUM_FUNCTIONS] = {
   [](double a) { return 1 / (1 + exp(-a)); }, // sigmoid
-  [](double a) { return (a > 0) ? a : 0; } // relu
+  [](double a) { return (a > 0) ? a : 0; }, // relu
+  [](double a) { return (a > 0) ? a : 0.01*a; } // leaky relu
 };
 
 const Function NeuralNetwork::activationDerivatives[ActivationFunction::NUM_FUNCTIONS] = {
@@ -13,7 +14,8 @@ const Function NeuralNetwork::activationDerivatives[ActivationFunction::NUM_FUNC
     double activation = NeuralNetwork::activationFunctions[SIGMOID](a);
     return activation * (1 - activation);
   },
-  [](double a) { return (a > 0) ? 1.0 : 0; } // relu
+  [](double a) { return (a > 0) ? 1.0 : 0; }, // relu
+  [](double a) { return (a > 0) ? 1.0 : 0.01; } // leaky relu
 };
 
 NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes, ActivationFunction f) {

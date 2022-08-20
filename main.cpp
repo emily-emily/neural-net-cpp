@@ -26,20 +26,20 @@ void printstuff(NeuralNetwork& nn) {
 }
 
 int main() {
-  std::cout.precision(10);
+  std::cout.precision(5);
   const std::string datafile = "../data.csv"; // program runs from ./build
 
   CSVReader reader(datafile);
   Matrix rawData = reader.getData();
 
-  auto data = splitInputOutput(rawData, {3});
+  Data data = splitInputOutput(rawData, {3});
   // printData(data);
 
   FeatureScaler fs(data);
   data = fs.scaleData(data);
   // printData(data);
 
-  NeuralNetwork nn({3, 3, 1}, NeuralNetwork::ActivationFunction::RELU);
+  NeuralNetwork nn({3, 8, 8, 8, 1}, NeuralNetwork::ActivationFunction::LEAKY_RELU);
 
   printstuff(nn);
 

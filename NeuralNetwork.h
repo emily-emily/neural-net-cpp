@@ -9,6 +9,7 @@ class NeuralNetwork {
     enum ActivationFunction {
       SIGMOID = 0,
       RELU,
+      LEAKY_RELU,
       NUM_FUNCTIONS
     };
 
