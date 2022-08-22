@@ -1,6 +1,6 @@
 #include "FeatureScaler.h"
 
-FeatureScaler::FeatureScaler(const std::vector<DataPoint>& data) {
+FeatureScaler::FeatureScaler(const Data& data) {
   inputMin = data[0].inputs;
   inputMax = data[0].inputs;
   outputMin = data[0].expectedOutputs;
@@ -22,8 +22,8 @@ FeatureScaler::FeatureScaler(const std::vector<DataPoint>& data) {
 }
 
 
-std::vector<DataPoint> FeatureScaler::scaleData(const std::vector<DataPoint>& data) {
-  std::vector<DataPoint> scaled;
+Data FeatureScaler::scaleData(const Data& data) {
+  Data scaled;
   for (auto& point : data) {
     scaled.push_back(DataPoint{scaleInput(point.inputs), scaleOutput(point.expectedOutputs)});
   }
@@ -51,6 +51,12 @@ Vector FeatureScaler::unscaleOutput(Vector output) {
   for (int i = 0; i < output.size(); i++) {
     unscaled.push_back(unscaleNumber(outputMin[i], outputMax[i], output[i]));
   }
+  return unscaled;
+}
+
+std::vector<Vector> FeatureScaler::unscaleManyOutputs(std::vector<Vector> output) {
+  std::vector<Vector> unscaled;
+  for (auto& o : output) unscaled.push_back(unscaleOutput(o));
   return unscaled;
 }
 

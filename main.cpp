@@ -25,28 +25,46 @@ void printstuff(NeuralNetwork& nn) {
   std::cout << std::endl;
 }
 
+void testNetwork(NeuralNetwork& nn, Data& test, FeatureScaler fs) {
+  for (auto& point : test) {
+    std::cout << "expected:  ";
+    printVector(fs.unscaleOutput(point.expectedOutputs));
+    std::cout << "predicted: ";
+    printVector(fs.unscaleOutput(nn.predict(point.inputs)));
+    std::cout << std::endl;
+  }
+}
+
 int main() {
-  std::cout.precision(5);
+  std::cout.precision(6);
+
+  // fetch and process data
   const std::string datafile = "../data.csv"; // program runs from ./build
 
   CSVReader reader(datafile);
   Matrix rawData = reader.getData();
-
   Data data = splitInputOutput(rawData, {3});
-  // printData(data);
 
-  FeatureScaler fs(data);
-  data = fs.scaleData(data);
-  // printData(data);
+  auto trainTest = splitTrainTest(data);
+  Data train = trainTest.first;
+  Data test = trainTest.second;
 
+  // apply feature scaling
+  FeatureScaler fs(train);
+  train = fs.scaleData(train);
+  test = fs.scaleData(test);
+
+  // neural network!
   NeuralNetwork nn({3, 8, 8, 8, 1}, NeuralNetwork::ActivationFunction::LEAKY_RELU);
 
-  printstuff(nn);
 
-  for (int i = 0; i < 50; i++) {
-    nn.learn(data, 0.1);
-    // printstuff(nn);
+  for (int i = 0; i < 500; i++) {
+    nn.learn(train, 0.1);
   }
+
+  // test
+  
+  testNetwork(nn, test, fs);
 
   return 0;
 }

@@ -6,12 +6,13 @@
 // feature scaling using min-max normalization
 class FeatureScaler {
   public:
-    FeatureScaler(const std::vector<DataPoint>& data);
+    FeatureScaler(const Data& data);
 
-    std::vector<DataPoint> scaleData(const std::vector<DataPoint>& data);
+    Data scaleData(const Data& data);
     Vector scaleInput(Vector input);
     Vector scaleOutput(Vector output);
     Vector unscaleOutput(Vector output);
+    std::vector<Vector> unscaleManyOutputs(std::vector<Vector> outputs);
 
   private:
     Vector inputMin, inputMax;

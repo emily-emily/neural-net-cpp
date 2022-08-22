@@ -4,6 +4,7 @@
 #include <vector>
 #include "Utility.h"
 
+// TODO: save and load neural network
 class NeuralNetwork {
   public:
     enum ActivationFunction {
@@ -20,11 +21,10 @@ class NeuralNetwork {
     NeuralNetwork(std::vector<int> layerSizes, std::vector<ActivationFunction>);
 
     // runs one epoch
-    void learn(std::vector<DataPoint> data, double learnRate);
+    void learn(Data data, double learnRate);
 
-    // TODO: predict
-
-    // TODO: test
+    // runs the inputs through the network and returns the output
+    Vector predict(Vector inputs);
 
     // returns the number of epochs
     unsigned int getEpoch();
@@ -96,10 +96,7 @@ class NeuralNetwork {
     double cost(DataPoint point);
 
     // runs inputs through the network and calculates the error/cost for several data points
-    double cost(std::vector<DataPoint> points);
-
-    // runs the inputs through the network and returns the output
-    Vector propagateForward(Vector inputs);
+    double cost(Data points);
 
     // applies gradients on all layers
     void applyGradients(double learnRate);
@@ -108,7 +105,7 @@ class NeuralNetwork {
     void clearGradients();
 
     // runs one iteration of Gradient Descent
-    void learnBatch(std::vector<DataPoint> batch, double learnRate);
+    void learnBatch(Data batch, double learnRate);
 
     // runs inputs through the network and updates all the gradients
     void updateAllGradients(DataPoint point);

@@ -30,7 +30,7 @@ NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes, std::vector<Activation
   }
 }
 
-void NeuralNetwork::learn(std::vector<DataPoint> data, double learnRate) {
+void NeuralNetwork::learn(Data data, double learnRate) {
   // TODO: separate data into batches; add batchSize
 
   // TODO: learn on each batch
@@ -40,7 +40,7 @@ void NeuralNetwork::learn(std::vector<DataPoint> data, double learnRate) {
   epoch++;
 }
 
-void NeuralNetwork::learnBatch(std::vector<DataPoint> batch, double learnRate) {
+void NeuralNetwork::learnBatch(Data batch, double learnRate) {
   
   clearGradients(); // temp, so gradients are still there to print after the batch
   std::cerr << "cost: " << cost(batch) << std::endl;
@@ -86,7 +86,7 @@ double NeuralNetwork::nodeCostDerivative(double output, double expected) {
 }
 
 double NeuralNetwork::cost(DataPoint point) {
-  Vector outputs = propagateForward(point.inputs);
+  Vector outputs = predict(point.inputs);
   double cost = 0;
   for (int i = 0; i < outputs.size(); i++) {
     cost += nodeCost(outputs[i], point.expectedOutputs[i]);
@@ -94,7 +94,7 @@ double NeuralNetwork::cost(DataPoint point) {
   return cost;
 }
 
-double NeuralNetwork::cost(std::vector<DataPoint> points) {
+double NeuralNetwork::cost(Data points) {
   double totalCost = 0;
   for (auto p : points) {
     totalCost += cost(p);
@@ -102,7 +102,7 @@ double NeuralNetwork::cost(std::vector<DataPoint> points) {
   return totalCost / points.size();
 }
 
-Vector NeuralNetwork::propagateForward(Vector inputs) {
+Vector NeuralNetwork::predict(Vector inputs) {
   for (auto& l : layers) {
     inputs = l.runLayer(inputs);
   }
@@ -123,7 +123,7 @@ void NeuralNetwork::clearGradients() {
 
 void NeuralNetwork::updateAllGradients(DataPoint point) {
   // run inputs through the network
-  propagateForward(point.inputs);
+  predict(point.inputs);
 
   // update gradients of output layer
   Layer& outputLayer = layers[layers.size() - 1];

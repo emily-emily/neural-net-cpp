@@ -20,13 +20,14 @@ struct DataPoint {
 typedef std::vector<DataPoint> Data;
 
 void printVector(Vector v, bool endl=true);
-void printMatrix(Matrix m);
+void printMatrix(Matrix m, bool endl=true);
 void printDataPoint(DataPoint p);
 void printData(Data d);
 
 // separates data columns into a input and expected output matrices
 Data splitInputOutput(Matrix& data, std::vector<int> outputCols);
 
-// TODO: train test split
+// separates data into train and test sets
+std::pair<Data, Data> splitTrainTest(Data& data, double testRatio=0.2);
 
 #endif
