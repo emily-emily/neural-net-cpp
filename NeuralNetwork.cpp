@@ -1,7 +1,7 @@
 #include <cmath>
-#include "NeuralNetwork.h"
-
 #include <iostream>
+#include <fstream>
+#include "NeuralNetwork.h"
 
 const Function NeuralNetwork::activationFunctions[ActivationFunction::NUM_FUNCTIONS] = {
   [](double a) { return 1 / (1 + exp(-a)); }, // sigmoid
@@ -30,6 +30,25 @@ NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes, std::vector<Activation
   }
 }
 
+NeuralNetwork::NeuralNetwork(std::string filename) {
+  std::ifstream infile;
+  infile.open(filename);
+  if (!infile.is_open()) {
+    std::cerr << "Unable to open file: " << filename << std::endl;
+    return;
+  }
+
+  json data = json::parse(infile);
+
+  epoch = data["epoch"];
+
+  for (auto& l : data["layers"]) {
+    layers.push_back(Layer(l));
+  }
+
+  infile.close();
+}
+
 void NeuralNetwork::learn(Data data, double learnRate) {
   // TODO: separate data into batches; add batchSize
 
@@ -41,9 +60,8 @@ void NeuralNetwork::learn(Data data, double learnRate) {
 }
 
 void NeuralNetwork::learnBatch(Data batch, double learnRate) {
-  
   clearGradients(); // temp, so gradients are still there to print after the batch
-  std::cerr << "cost: " << cost(batch) << std::endl;
+  // std::cerr << "cost: " << cost(batch) << std::endl;
 
   // run through all points in the batch
   for (auto& point : batch) {
@@ -74,6 +92,29 @@ void NeuralNetwork::printGradientsW() {
 
 void NeuralNetwork::printGradientsB() {
   for (auto& l : layers) l.printGradientsB();
+}
+
+void NeuralNetwork::save(std::string filename) {
+  std::ofstream outfile;
+  outfile.open(filename, std::ofstream::trunc);
+  if (!outfile.is_open()) {
+    std::cerr << "Unable to open file: " << filename << std::endl;
+    return;
+  }
+
+  json data = json::object();
+
+  data["epoch"] = epoch;
+
+  data["layers"] = json::array();
+
+  for (Layer& l : layers) {
+    data["layers"].push_back(l.toJSON());
+  }
+
+  outfile << data.dump();
+
+  outfile.close();
 }
 
 double NeuralNetwork::nodeCost(double output, double expected) {

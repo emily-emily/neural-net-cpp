@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(NeuralNetworkCpp VERSION 0.1)
 
+add_subdirectory(lib)
+
 set(SRCS
   main.cpp
   Utility.cpp
@@ -14,3 +16,7 @@ set(SRCS
 )
 
 add_executable(neuralnet ${SRCS})
+
+target_include_directories(neuralnet PUBLIC lib/nlohmann-json/single_include)
+
+target_link_libraries(neuralnet PRIVATE nlohmann_json::nlohmann_json)

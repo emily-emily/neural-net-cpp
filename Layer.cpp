@@ -6,6 +6,7 @@
 NeuralNetwork::Layer::Layer(int nIn, int nOut, ActivationFunction f)
     : numNodesIn(nIn)
     , numNodesOut(nOut)
+    , activationFunctionID(f)
     , activationFunction(activationFunctions[f])
     , activationDerivative(activationDerivatives[f]) {
   weights = Matrix(numNodesIn);
@@ -25,6 +26,27 @@ NeuralNetwork::Layer::Layer(int nIn, int nOut, ActivationFunction f)
   activations = Vector(numNodesOut);
 }
 
+NeuralNetwork::Layer::Layer(json data) {
+  // extract data from json
+  numNodesIn = data["nodesIn"];
+  numNodesOut = data["nodesOut"];
+  activationFunctionID = data["activation"];
+  activationFunction = activationFunctions[activationFunctionID];
+  activationDerivative = activationDerivatives[activationFunctionID];
+  weights = data["weights"];
+  biases = data["biases"].get<std::vector<double>>();
+
+  // allocate remaining empty parameters
+  costGradientW = Matrix(numNodesIn);
+  for (int in = 0; in < numNodesIn; in++) {
+    costGradientW[in] = Vector(numNodesOut);
+  }
+  costGradientB = Vector(numNodesOut);
+  inputs = Vector(numNodesOut);
+  weightedInputs = Vector(numNodesOut);
+  activations = Vector(numNodesOut);
+}
+
 void NeuralNetwork::Layer::printWeights() { printMatrix(weights); }
 
 void NeuralNetwork::Layer::printBiases() { printVector(biases); }
@@ -32,6 +54,18 @@ void NeuralNetwork::Layer::printBiases() { printVector(biases); }
 void NeuralNetwork::Layer::printGradientsW() { printMatrix(costGradientW); }
 
 void NeuralNetwork::Layer::printGradientsB() { printVector(costGradientB); }
+
+json NeuralNetwork::Layer::toJSON() {
+  json data = json::object();
+
+  data["nodesIn"] = numNodesIn;
+  data["nodesOut"] = numNodesOut;
+  data["activation"] = activationFunctionID;
+  data["weights"] = weights;
+  data["biases"] = biases;
+
+  return data;
+}
 
 Vector NeuralNetwork::Layer::runLayer(Vector layerInputs) {
   inputs = layerInputs;

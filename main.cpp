@@ -54,17 +54,31 @@ int main() {
   train = fs.scaleData(train);
   test = fs.scaleData(test);
 
-  // neural network!
+  // new neural network
   NeuralNetwork nn({3, 8, 8, 8, 1}, NeuralNetwork::ActivationFunction::LEAKY_RELU);
 
-
+  // train
   for (int i = 0; i < 500; i++) {
     nn.learn(train, 0.1);
   }
 
   // test
-  
   testNetwork(nn, test, fs);
+
+  // save
+  try {
+    nn.save("test.nn");
+  }
+  catch(...) {
+    std::cout << "could not save" << std::endl;
+  }
+  std::cout << "successfully saved" << std::endl;
+
+  // load saved network
+  NeuralNetwork nn2("test.nn");
+  nn2.learn(train, 0.1);
+  printstuff(nn2);
+  testNetwork(nn2, test, fs);
 
   return 0;
 }

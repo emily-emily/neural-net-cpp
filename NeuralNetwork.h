@@ -2,7 +2,10 @@
 #define NEURALNETWORK_H
 
 #include <vector>
+#include "nlohmann/json.hpp"
 #include "Utility.h"
+
+using json = nlohmann::json;
 
 // TODO: save and load neural network
 class NeuralNetwork {
@@ -19,6 +22,8 @@ class NeuralNetwork {
     NeuralNetwork(std::vector<int> layerSizes, ActivationFunction f=SIGMOID);
     // create a neural network specifying activation functions for different layers
     NeuralNetwork(std::vector<int> layerSizes, std::vector<ActivationFunction>);
+    // create a neural network from a save
+    NeuralNetwork(std::string filename);
 
     // runs one epoch
     void learn(Data data, double learnRate);
@@ -35,17 +40,24 @@ class NeuralNetwork {
     void printGradientsW();
     void printGradientsB();
 
+    // saves the current neural network
+    void save(std::string filename);
+
   private:
     // one layer in the neural network
     class Layer {
       public:
         Layer(int numNodesIn, int numNodesOut, ActivationFunction f=SIGMOID);
+        Layer(json layerData);
         
         // print internal values for debugging
         void printWeights();
         void printBiases();
         void printGradientsW();
         void printGradientsB();
+
+        // returns the JSON data for this layer
+        json toJSON();
 
         // runs the inputs through the layer and returns the output
         Vector runLayer(Vector inputs);
@@ -71,6 +83,7 @@ class NeuralNetwork {
         Matrix costGradientW;
         Vector biases;
         Vector costGradientB;
+        ActivationFunction activationFunctionID;
         Function activationFunction;
         Function activationDerivative;
         // save these for gradient descent
