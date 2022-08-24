@@ -42,8 +42,8 @@ int main() {
   const std::string datafile = "../data.csv"; // program runs from ./build
 
   CSVReader reader(datafile);
-  Matrix rawData = reader.getData();
-  Data data = splitInputOutput(rawData, {3});
+  Matrix rawData = reader.getData({3});
+  Data data = splitInputOutput(rawData, {6});
 
   auto trainTest = splitTrainTest(data);
   Data train = trainTest.first;
@@ -55,7 +55,7 @@ int main() {
   test = fs.scaleData(test);
 
   // new neural network
-  NeuralNetwork nn({3, 8, 8, 8, 1}, NeuralNetwork::ActivationFunction::LEAKY_RELU);
+  NeuralNetwork nn({6, 8, 8, 8, 1}, NeuralNetwork::ActivationFunction::LEAKY_RELU);
 
   // train
   for (int i = 0; i < 500; i++) {
@@ -67,7 +67,7 @@ int main() {
 
   // save
   try {
-    nn.save("test.nn");
+    nn.save("test2.nn");
   }
   catch(...) {
     std::cout << "could not save" << std::endl;
@@ -75,7 +75,7 @@ int main() {
   std::cout << "successfully saved" << std::endl;
 
   // load saved network
-  NeuralNetwork nn2("test.nn");
+  NeuralNetwork nn2("test2.nn");
   nn2.learn(train, 0.1);
   printstuff(nn2);
   testNetwork(nn2, test, fs);

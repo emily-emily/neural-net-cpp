@@ -6,8 +6,8 @@ class CSVReader {
   public:
     CSVReader(std::string filename, std::string delimeter=",", bool header=true);
 
-    // reads data from the file
-    std::vector<std::vector<double>> getData();
+    // reads data from the file, applying one-hot encoding to the specified columns
+    std::vector<std::vector<double>> getData(std::vector<int> oneHotEncoding);
 
   private:
     bool header = true;
