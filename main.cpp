@@ -3,6 +3,7 @@
 #include "CSVReader.h"
 #include "NeuralNetwork.h"
 #include "FeatureScaler.h"
+#include <cmath>
 
 void printstuff(NeuralNetwork& nn) {
   std::cout << "epoch " << nn.getEpoch() << " -------------------------------------------------------------" << std::endl;
@@ -25,14 +26,34 @@ void printstuff(NeuralNetwork& nn) {
   std::cout << std::endl;
 }
 
-void testNetwork(NeuralNetwork& nn, Data& test, FeatureScaler fs) {
-  for (auto& point : test) {
-    std::cout << "expected:  ";
-    printVector(fs.unscaleOutput(point.expectedOutputs));
-    std::cout << "predicted: ";
-    printVector(fs.unscaleOutput(nn.predict(point.inputs)));
-    std::cout << std::endl;
+// test the network using some data
+// comp: function. Given the output and expected result, determine whether the output is correct
+float testNetwork(NeuralNetwork& nn, Data& testData, FeatureScaler fs, bool (*comp)(Vector, Vector), bool verbose=false) {
+  int correctCount = 0;
+  for (auto& point : testData) {
+    auto expected = fs.unscaleOutput(point.expectedOutputs);
+    auto prediction = fs.unscaleOutput(nn.predict(point.inputs));
+
+    if (comp(expected, prediction))
+      correctCount += 1;
+
+    if (verbose) {
+      std::cout << "expected:  ";
+      printVector(expected);
+      std::cout << "predicted: ";
+      printVector(prediction);
+      std::cout << std::endl;
+    }
   }
+  return float(correctCount) / testData.size();
+}
+
+// this is specific to my sample data (classification)
+// compares the expected output and the predicted output to determine whether the network was correct
+bool compare(Vector expected, Vector prediction) {
+  int expectedY = int(expected[0]);
+  int predictedY = int(round(prediction[0]));
+  return expectedY == predictedY;
 }
 
 int main() {
@@ -42,8 +63,8 @@ int main() {
   const std::string datafile = "../data.csv"; // program runs from ./build
 
   CSVReader reader(datafile);
-  Matrix rawData = reader.getData({3});
-  Data data = splitInputOutput(rawData, {6});
+  Matrix rawData = reader.getData({});
+  Data data = splitInputOutput(rawData, {2});
 
   auto trainTest = splitTrainTest(data);
   Data train = trainTest.first;
@@ -57,13 +78,17 @@ int main() {
   // new neural network
   NeuralNetwork nn({6, 8, 8, 8, 1}, NeuralNetwork::ActivationFunction::LEAKY_RELU);
 
+  float accuracy = testNetwork(nn, test, fs, compare);
+  std::cout << "Network test accuracy before: " << accuracy << std::endl;
+
   // train
   for (int i = 0; i < 500; i++) {
     nn.learn(train, 0.1);
   }
 
   // test
-  testNetwork(nn, test, fs);
+  accuracy = testNetwork(nn, test, fs, compare);
+  std::cout << "Network test accuracy after:  " << accuracy << std::endl;
 
   // save
   try {
@@ -77,8 +102,8 @@ int main() {
   // load saved network
   NeuralNetwork nn2("test2.nn");
   nn2.learn(train, 0.1);
-  printstuff(nn2);
-  testNetwork(nn2, test, fs);
+  // printstuff(nn2);
+  // testNetwork(nn2, test, fs);
 
   return 0;
 }
