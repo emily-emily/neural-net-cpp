@@ -21,7 +21,7 @@ As it is currently, the main program takes the generated data, trains the networ
 - Python (for generating sample data)
 
 ### Setup
-1. Clone nlohmann json in `./lib`
+1. Clone [nlohmann json](https://github.com/nlohmann/json) in `./lib`
 2. Create a `CMakeLists.txt` file in `./lib` with this code: `add_subdirectory(json)`
 3. Create a folder for build files `./build`
 4. Obtain sample data. `generate_data.ipynb` generates some simple data for classification.
